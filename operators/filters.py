@@ -1,6 +1,5 @@
 import numpy as np
 from operators.base import Operator
-from plot import plot
 import scipy.signal
 import pyqtgraph as pg
 import math
@@ -15,14 +14,6 @@ class LogValueAxis(pg.AxisItem):
         for v in values:
             # vs is the original tick value
             vs = v * scale
-            # if we have vs in our values, show the string
-            # otherwise show nothing
-            # if vs in self.x_values:
-            #     # Find the string with x_values closest to vs
-            #     vstr = self.x_strings[np.abs(self.x_values - vs).argmin()]
-            # else:
-            #     vstr = ""
-            # strings.append(vstr)
             vstr = '%0.0f' % (math.exp(vs),)
             strings.append(vstr)
         return strings
@@ -135,7 +126,7 @@ class BandPassFilter(Operator):
             # y_batch = yy[self.filter_size:2*self.filter_size]
             # Here's optimized version:
             start = self.filter_size / 2 + 1
-            y_batch = scipy.signal.fftconvolve(xx, self.h, mode='same')[start:start+self.filter_size]
+            y_batch = scipy.signal.fftconvolve(xx, self.h, mode='same')[start:start+self.filter_size] / (2*np.pi)
 
             result[i*self.filter_size:(i+1)*self.filter_size] = y_batch
         return result
