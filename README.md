@@ -5,11 +5,15 @@ Image-Line Sytrus-like FM Synthesizer Implementation in Python.
 
 #### 功能性TODOs
 
-1. 实现 ADSR, attack-decay-sustain-release
-    - 所有的 Operator 需要添加调幅输入(现在只有 Oscillator 支持调幅)
 
-1. Oscillator 的单周期波形更多样化, 甚至可以手动绘制, 或者给函数表达式
+- Oscillator
+    - 单周期波形更多样化, 甚至可以手动绘制, 或者给函数表达式
+    - 实现 ADSR, attack-decay-sustain-release,
+        - 所有的 Operator 需要添加调幅输入(现在只有 Oscillator 支持调幅)
+        - 如何得知一个按键按下
 
+- Filter
+    - 换用 IIR 滤波器, 提升性能 
 
 
 #### 易用性TODOs

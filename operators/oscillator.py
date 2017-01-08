@@ -4,12 +4,13 @@ import operators.base
 
 
 class Oscillator(operators.base.Operator):
-    def __init__(self, input_ops, volume=1.0, osc_type='sine'):
+    def __init__(self, input_ops, volume=1.0, asdr=(0.5, 0.5, 0.5, 0.5), osc_type='sine'):
         super().__init__(input_ops,
                          input_ops[0].sr,
                          input_ops[0].buffer_size,
                          volume)
         self.osc_type = osc_type
+        self.asdr = asdr
 
         fns = {
             'sine': lambda f, a, t: a * np.sin(2 * np.pi * f * t),

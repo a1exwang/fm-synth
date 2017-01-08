@@ -11,10 +11,10 @@ gui = FMSynthGUI()
 
 midi = MIDIInput(sr=44100, buffer_size=2048, bpm=45)
 # sine = Oscillator(input_ops=[midi], volume=-1, osc_type='sine')
-saw = Oscillator(input_ops=[midi], volume=-0.7, osc_type='saw')
+saw = Oscillator(input_ops=[midi], volume=0.0, osc_type='saw')
 raw_osc = Oscilloscope(input_ops=[saw], gui=gui, name='Before-filter Oscilloscope')
 filtered = BandPassFilter(input_ops=[raw_osc],
-                          bands=[(440, 0.5), (440, 880, 1), (880, 1760, 0), (1760, 3520, 1)],
+                          bands=[(440, 0.7), (440, 880, 1), (880, 1760, 0.9), (1760, 20000, 1)],
                           # window_func=functools.partial(np.kaiser, beta=100),
                           window_func=np.hamming,
                           filter_size=2048, gui=gui)

@@ -126,7 +126,8 @@ class BandPassFilter(Operator):
             # y_batch = yy[self.filter_size:2*self.filter_size]
             # Here's optimized version:
             start = self.filter_size / 2 + 1
-            y_batch = scipy.signal.fftconvolve(xx, self.h, mode='same')[start:start+self.filter_size] / (2*np.pi)
+            # TODO: Why does this need division by PI?
+            y_batch = scipy.signal.fftconvolve(xx, self.h, mode='same')[start:start+self.filter_size] / np.pi
 
             result[i*self.filter_size:(i+1)*self.filter_size] = y_batch
         return result
