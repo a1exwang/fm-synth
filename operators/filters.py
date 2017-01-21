@@ -19,12 +19,18 @@ class LogValueAxis(pg.AxisItem):
         return strings
 
 
-class BandPassFilter(Operator):
-    def __init__(self, input_ops, bands, window_func=np.hanning, filter_size=128, volume=1.0, gui=None, name='Filter'):
+class FIRFilter(Operator):
+    input_count = 1
+    output_count = 1
+
+    def __init__(self, input_ops, bands, window_func=np.hanning, filter_size=128,
+                 volume=1.0, gui=None, name='FIRFilter'):
         super().__init__(input_ops,
+                         ((0, 0),),
                          input_ops[0].sr,
                          input_ops[0].buffer_size,
-                         volume)
+                         volume,
+                         name)
         self.name = name
         self.gui = gui
         self.filter_size = filter_size
@@ -112,7 +118,8 @@ class BandPassFilter(Operator):
 
     def next_buffer(self, n):
         result = np.zeros([self.buffer_size], dtype='float32')
-        xs = super().next_buffer(n)
+        outs = super().next_buffer(n)
+        xs = outs[0]
         for i in range(self.buffer_size // self.filter_size):
             x_batch = xs[i*self.filter_size:(i+1)*self.filter_size]
             xx = np.append(self.prev_x, x_batch)
@@ -127,8 +134,10 @@ class BandPassFilter(Operator):
             # Here's optimized version:
             start = self.filter_size / 2 + 1
             # TODO: Why does this need division by PI?
-            y_batch = scipy.signal.fftconvolve(xx, self.h, mode='same')[start:start+self.filter_size] / np.pi
+            start_i = int(start)
+            conv = scipy.signal.fftconvolve(xx, self.h, mode='same')
+            y_batch = conv[start_i:start_i+self.filter_size] / np.pi
 
             result[i*self.filter_size:(i+1)*self.filter_size] = y_batch
-        return result
+        return [result]
 

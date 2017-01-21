@@ -4,11 +4,18 @@ import operators.base
 
 
 class Oscillator(operators.base.Operator):
-    def __init__(self, input_ops, volume=1.0, asdr=(0.5, 0.5, 0.5, 0.5), osc_type='sine'):
+    input_count = 2
+    output_count = 1
+
+    # input_ops: {0: (op1, 0), 1: (op2, 0)}
+    def __init__(self, input_ops, connection=((0, 0), (0, 1)), volume=1.0,
+                 asdr=(0.5, 0.5, 0.5, 0.5), osc_type='sine', name='Osc'):
         super().__init__(input_ops,
+                         connection,
                          input_ops[0].sr,
                          input_ops[0].buffer_size,
-                         volume)
+                         volume,
+                         name)
         self.osc_type = osc_type
         self.asdr = asdr
 
@@ -30,18 +37,20 @@ class Oscillator(operators.base.Operator):
         return False
 
     def next_buffer(self, current_count):
-
         result = np.zeros([self.buffer_size])
+        op_outs = []
         for input_op in self.input_ops:
-            if input_op.is_input():
-                freq_seq, amp_seq = input_op.next_buffer(current_count)
-                indexes = np.array(range(current_count, current_count + self.buffer_size), dtype='float32')
-                t_seq = indexes / self.sr
-                result += self.fn(freq_seq, amp_seq, t_seq)
-            else:
-                freq_seq = input_op.next_buffer(current_count)
-                indexes = np.array(range(current_count, current_count + self.buffer_size), dtype='float32')
-                t_seq = indexes / self.sr
-                result += self.fn(freq_seq, 1, t_seq)
+            # if input_op.is_input():
+            outs = input_op.next_buffer(current_count)
+            op_outs.append(outs)
 
-        return result * self.volume
+        freq_op, freq_channel = self.connections[0]
+        arr_freq = op_outs[freq_op][freq_channel]
+
+        amp_op, amp_channel = self.connections[1]
+        arr_amp = op_outs[amp_op][amp_channel]
+
+        time_seq = np.array(range(current_count, current_count + self.buffer_size), dtype='float32') / self.sr
+        result += self.fn(arr_freq, arr_amp, time_seq)
+
+        return [result * self.volume]

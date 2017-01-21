@@ -19,3 +19,7 @@ Image-Line Sytrus-like FM Synthesizer Implementation in Python.
 #### 易用性TODOs
 
 1. 用 pyqt 搭起 GUI 框架, 把现有的 Oscilloscope 放进去, Operator 的参数用滑动条调节
+
+#### 模型
+
+1. 

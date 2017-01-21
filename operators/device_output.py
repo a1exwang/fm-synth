@@ -1,20 +1,20 @@
 import time
 import numpy as np
 import pyaudio
-from operators.base import Operator
+from operators.base import OutputOperator
 
 
-class DeviceOutput(Operator):
-    def __init__(self, input_ops, volume=1.0):
-        super().__init__(input_ops,
-                         input_ops[0].sr,
-                         input_ops[0].buffer_size,
-                         volume)
+class DeviceOutput(OutputOperator):
+    input_count = 1
+
+    def __init__(self, input_op, volume=1.0, name='DeviceOutput'):
+        super().__init__((input_op,), volume, name)
         self.total_count = 0
         self.stream = None
 
     def next_buffer(self, n):
-        mixed = super().next_buffer(n)
+        outs = super().next_buffer(n)
+        mixed = outs[0]
         arr = np.array(mixed, dtype='float32') * 2**16
         arr = np.transpose(np.array([arr, arr]))
         result = np.array(arr, dtype='int16')
