@@ -2,9 +2,9 @@ from operators.base import Operator
 import numpy as np
 
 
-class SumOperator(Operator):
+class MulOperator(Operator):
 
-    def __init__(self, input_ops, volume, name='SumOperator'):
+    def __init__(self, input_ops, volume=1.0, name='MulOperator'):
         super().__init__(input_ops,
                          ((0, 0),),
                          input_ops[0].sr,
@@ -14,7 +14,9 @@ class SumOperator(Operator):
 
     def next_buffer(self, caller, n):
         outs = super().next_buffer(self, n)
-        result = np.zeros([self.buffer_size])
-        for o in outs:
-            result += o
+        result = np.ones([self.buffer_size])
+        for channels in outs:
+            for channel in channels:
+                result *= channel
         return [result]
+

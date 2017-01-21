@@ -116,9 +116,9 @@ class FIRFilter(Operator):
     def get_tw(self):
         return self.tw(self.filter_size)
 
-    def next_buffer(self, n):
+    def next_buffer(self, caller, n):
         result = np.zeros([self.buffer_size], dtype='float32')
-        outs = super().next_buffer(n)
+        outs = super().next_buffer(self, n)
         xs = outs[0]
         for i in range(self.buffer_size // self.filter_size):
             x_batch = xs[i*self.filter_size:(i+1)*self.filter_size]

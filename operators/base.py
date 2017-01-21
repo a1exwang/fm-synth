@@ -5,20 +5,24 @@ class Operator:
     input_count = 0
     output_count = 0
 
-    def __init__(self, input_ops, connection, sr, buffer_size, volume, name):
+    def __init__(self, input_ops, in_conn, sr, buffer_size, volume, name):
         self.sr = sr
         self.buffer_size = buffer_size
         self.input_ops = input_ops
-        self.connections = connection
+        self.in_conn = in_conn
+        self.output_ops = []
+        self.out_conn = []
         self.volume = volume
         self.name = name
 
-    def next_buffer(self, n):
+        for op in self.input_ops:
+            op.add_output_op(self)
+
+    def next_buffer(self, caller, n):
         result = []
         for input_op in self.input_ops:
-            assert(not input_op.is_input())
-            val_seq = input_op.next_buffer(n)
-            result += val_seq
+            val_seq = input_op.next_buffer(self, n)
+            result.append(val_seq)
 
         return result
 
@@ -33,6 +37,9 @@ class Operator:
 
     def get_output_count(self):
         return self.output_count
+
+    def add_output_op(self, op):
+        self.output_ops.append(op)
 
 
 class InputOperator(Operator):

@@ -12,8 +12,8 @@ class DeviceOutput(OutputOperator):
         self.total_count = 0
         self.stream = None
 
-    def next_buffer(self, n):
-        outs = super().next_buffer(n)
+    def next_buffer(self, caller, n):
+        outs = super().next_buffer(self, n)
         mixed = outs[0]
         arr = np.array(mixed, dtype='float32') * 2**16
         arr = np.transpose(np.array([arr, arr]))
@@ -25,7 +25,7 @@ class DeviceOutput(OutputOperator):
         if flag:
             print("Playback Error: %i" % flag)
         assert(frame_count == self.buffer_size)
-        result = self.next_buffer(self.total_count)
+        result = self.next_buffer(self, self.total_count)
         return result.tobytes(), pyaudio.paContinue
 
     def play_non_blocking(self):

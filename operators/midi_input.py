@@ -51,7 +51,7 @@ class MIDIInput(InputOperator):
     def midi_value_to_freq(midi_val):
         return 440 * 2.0**((midi_val - 69) / 12.0)
 
-    def next_buffer(self, current_count):
+    def next_buffer(self, caller, current_count):
         arr_freq = np.zeros([self.buffer_size])
         arr_amp = 0.5 * np.ones([self.buffer_size])
         for i in range(self.buffer_size):

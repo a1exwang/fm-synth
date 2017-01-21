@@ -8,5 +8,5 @@ class ConstOperator(InputOperator):
         super().__init__(sr, buffer_size, volume, name)
         self.constant = constant
 
-    def next_buffer(self, n):
+    def next_buffer(self, caller, n):
         return [np.ones([self.buffer_size], dtype='float32') * self.constant]
