@@ -13,9 +13,10 @@ class FMSynthGUI(QObject):
         super().__init__()
         self.app = QtGui.QApplication([])
         self.graphics_window = pg.GraphicsWindow(title="Spectrogram")
-        self.graphics_window.resize(1300, 500)
+        self.graphics_window.resize(1200, 600)
         self.graphics_window.setWindowTitle('FM8 Synthesizer Main Panel')
         self.update_graph_signal.connect(self.update_graph)
+        self.plot_count = 0
 
     @pyqtSlot('PyQt_PyObject', 'PyQt_PyObject', 'PyQt_PyObject', 'PyQt_PyObject', name='update_graph')
     def update_graph(self, curve, data, pl, resize):
@@ -28,4 +29,7 @@ class FMSynthGUI(QObject):
         QtGui.QApplication.instance().exec_()
 
     def add_plot(self, title, *args, **kargs):
+        if self.plot_count % 3 == 0:
+            self.graphics_window.nextRow()
+        self.plot_count += 1
         return self.graphics_window.addPlot(title=title, *args, **kargs)

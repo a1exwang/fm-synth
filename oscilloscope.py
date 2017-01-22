@@ -3,8 +3,11 @@ import numpy as np
 
 
 class Oscilloscope(Operator):
-    def __init__(self, input_ops, gui=None, name='Oscilloscope'):
-        super().__init__(input_ops, ((0, 0),), input_ops[0].sr, input_ops[0].buffer_size, 1.0, name)
+    input_count = 1
+    output_count = 1
+
+    def __init__(self, input_ops, connections=((0, 0),), gui=None, name='Oscilloscope'):
+        super().__init__(input_ops, connections, input_ops[0].sr, input_ops[0].buffer_size, 1.0, name)
         self.name = name
         self.gui = gui
 
@@ -15,12 +18,10 @@ class Oscilloscope(Operator):
 
     def next_buffer(self, caller, n):
         result = super().next_buffer(self, n)
+        i_op, i_channel = self.in_conn[0]
         self.gui.update_graph_signal.emit(self.curve,
-                                          np.copy(result[0][0]),
+                                          np.copy(result[i_op][i_channel]),
                                           self.pl,
                                           self.ptr == 0)
-        # self.curve.setData(result[0][0])
-        # if self.ptr == 0:
-        #     self.pl.enableAutoRange('x', False)
         self.ptr += 1
-        return result
+        return [result[i_op][i_channel]]
