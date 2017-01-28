@@ -1,6 +1,7 @@
 import numpy as np
 from operators.base import InputOperator
 import functools
+from channels.channel import Channel
 
 
 class MIDIInput(InputOperator):
@@ -27,7 +28,7 @@ class MIDIInput(InputOperator):
     output_count = 2
 
     def __init__(self, gui, sr=44100, buffer_size=2048, bpm=120,
-                 notes=DEFAULT_NOTES, loop=True,
+                 note_seq=DEFAULT_NOTES, loop=True,
                  adsr=(1, 1, 1, 1),
                  volume=1.0,
                  name='MIDIInput'):
@@ -36,16 +37,21 @@ class MIDIInput(InputOperator):
         self.bpm = bpm
         self.bps = bpm / 60.0
         self.adsr = np.array(adsr)
-        self.note_seq = notes
-        self.first_note_index = 0
-
+        self.note_seq = note_seq
         self.loop = loop
-        self.sustain_level = 0.85
-        self.peak_level = 1
+
+        self.sustain_level = 0.5
+        self.peak_level = 0.9
         self.sustain_rate = 0
+        self.attack_base_duration = 0.05
+        self.decay_base_duration = 0.05
+        self.sustain_base_duration = 2
+        self.release_base_duration = 0.3
 
         self.ads_env = self.ads_envelope()
         self.release_env = self.release_envelope()
+
+        self.first_note_index = 0
 
         if self.gui is not None:
             self.pl = self.gui.add_plot(self.name + "ASDR envelope")
@@ -57,6 +63,9 @@ class MIDIInput(InputOperator):
             self.pl.setLabel('left', "Volume", units='dB')
             self.pl.setLabel('bottom', "t", units='s')
             self.pl.enableAutoRange('xy', False)
+
+            self.channel = Channel.get_instance()
+            self.channel.add_channel(name='InputVol', slot=self.volume_changed, get_val=lambda: self.volume)
 
     @staticmethod
     def note_name_to_midi_value(name):
@@ -147,14 +156,17 @@ class MIDIInput(InputOperator):
                 arr_amp[i1:] = self.ads_env[:self.buffer_size-i1] * note['velocity']
             else:
                 arr_amp[i1:] = self.release_env[:self.buffer_size-i1] * note['velocity']
-        return [arr_freq, arr_amp]
+        return [arr_freq, arr_amp * self.volume]
 
     def ads_envelope(self):
         n = int(self.sr * 2)
         envelope = np.zeros([n], dtype='float32')
         for t in range(n):
             attack_l, decay_l, sustain_l, release_l = \
-                np.array(self.adsr * self.sr * [0.1, 0.1, 3, 0.1], dtype='int32')
+                np.array(self.adsr * self.sr * [self.attack_base_duration,
+                                                self.decay_base_duration,
+                                                self.sustain_base_duration,
+                                                self.release_base_duration], dtype='int32')
             if t < attack_l:
                 envelope[t] = t / attack_l * self.peak_level
             elif t < attack_l + decay_l:

@@ -1,11 +1,13 @@
 import numpy as np
+from PyQt5.QtCore import QObject, pyqtSlot
 
 
-class Operator:
+class Operator(QObject):
     input_count = 0
     output_count = 0
 
     def __init__(self, input_ops, in_conn, sr, buffer_size, volume, name):
+        super().__init__()
         self.sr = sr
         self.buffer_size = buffer_size
         self.input_ops = input_ops
@@ -17,6 +19,14 @@ class Operator:
 
         for op in self.input_ops:
             op.add_output_op(self)
+
+    @pyqtSlot(float, name='volume_changed')
+    def volume_changed(self, vol):
+        if vol <= 0:
+            vol = 0
+        if vol >= 1:
+            vol = 1
+        self.volume = vol
 
     def next_buffer(self, caller, n):
         result = []

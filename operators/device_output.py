@@ -2,6 +2,7 @@ import time
 import numpy as np
 import pyaudio
 from operators.base import OutputOperator
+from channels.channel import Channel
 
 
 class DeviceOutput(OutputOperator):
@@ -12,6 +13,9 @@ class DeviceOutput(OutputOperator):
         self.total_count = 0
         self.stream = None
 
+        self.channel = Channel.get_instance()
+        self.channel.add_channel(name='MasterVol', slot=self.volume_changed, get_val=lambda: self.volume)
+
     def next_buffer(self, caller, n):
         outs = super().next_buffer(self, n)
         mixed = outs[0]
@@ -19,7 +23,7 @@ class DeviceOutput(OutputOperator):
         arr = np.transpose(np.array([arr, arr]))
         result = np.array(arr, dtype='int16')
         self.total_count += self.buffer_size
-        return result
+        return result * self.volume
 
     def callback(self, in_data, frame_count, time_info, flag):
         if flag:
@@ -59,3 +63,4 @@ class DeviceOutput(OutputOperator):
 
         stream.close()
         pa.terminate()
+

@@ -1,6 +1,7 @@
 import numpy as np
+import os
 
-from gui import FMSynthGUI
+from gui.monitors import FMSynthGUI
 from operators.const import ConstOperator
 from operators.device_output import DeviceOutput
 from operators.filters.fir import FIRFilter
@@ -9,6 +10,8 @@ from operators.mul import MulOperator
 from operators.midi_input import MIDIInput
 from operators.oscillator import Oscillator
 from oscilloscope import Oscilloscope
+
+os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
 
 gui = FMSynthGUI()
 
@@ -43,6 +46,8 @@ filtered = FIRFilter(input_ops=[raw_osc],
                      name='Filter1')
 osc = Oscilloscope(input_ops=[filtered], gui=gui, name='After-filter Oscilloscope')
 out = DeviceOutput(input_op=osc, volume=1)
+
+gui.post_init()
 
 # out.play()
 out.play_non_blocking()
