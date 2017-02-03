@@ -16,6 +16,10 @@ class DeviceOutput(OutputOperator):
         self.channel = Channel.get_instance()
         self.channel.add_channel(name='MasterVol', slot=self.volume_changed, get_val=lambda: self.volume)
 
+    @staticmethod
+    def build(ops, m):
+        assert m['type'] == 'DeviceOutput'
+
     def next_buffer(self, caller, n):
         outs = super().next_buffer(self, n)
         mixed = outs[0]

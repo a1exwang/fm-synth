@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import QWidget, QVBoxLayout, QSlider, QLabel, QComboBox
 from PyQt5.QtCore import Qt
 from PyQt5.QtCore import pyqtSlot
 from channels.channel import Channel
+import pdb
 
 
 class ConnectSlider(QWidget):
@@ -44,5 +45,7 @@ class ConnectSlider(QWidget):
             name = self.channel.get_channels()[index - 1]
             slot = self.channel.get_channel(name)
             get_val = self.channel.get_channel_val(name)
+            get_max_val = self.channel.get_channel_max(name)
+            self.slider.setMaximum(get_max_val())
             self.connected_channel = slot
             self.slider.setValue(int(get_val() * self.slider.maximum()))

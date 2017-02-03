@@ -4,6 +4,12 @@ from PyQt5.QtWidgets import QWidget
 from PyQt5 import QtGui
 from PyQt5.QtCore import QObject, Qt
 from PyQt5.QtWidgets import QHBoxLayout
+from pprint import pprint
+from PyQt5.QtWebEngineWidgets import QWebEngineView as QWebView
+from PyQt5.QtWebEngineWidgets import QWebEngineSettings
+from PyQt5.QtCore import QUrl
+import os
+from api.main import start_web_server, set_data
 
 import PyQt5.Qt
 from gui.slider import ConnectSlider
@@ -30,12 +36,27 @@ class FMSynthGUI(QObject):
         self.slider_panel.setLayout(self.sp_layout)
         self.sliders = []
         self.slider_panel.show()
+        self.web_view = QWebView()
 
-    def post_init(self):
+    def post_init(self, out):
         for i in range(5):
             s = ConnectSlider(name='Slider %g' % i)
             self.sliders.append(s)
             self.sp_layout.addWidget(s)
+
+        ops = []
+        out.dump(ops)
+        pprint(ops)
+
+        start_web_server()
+        objs = []
+        out.dump(objs)
+        set_data(objs)
+
+        path = os.path.abspath(os.path.dirname(__file__)) + '/../web/main.html'
+        self.web_view.load(QUrl.fromLocalFile(path))
+        # self.web_view.page().settings().setAttribute(QWebEngineSettings)
+        self.web_view.show()
 
     @pyqtSlot('PyQt_PyObject', 'PyQt_PyObject', 'PyQt_PyObject', 'PyQt_PyObject', name='update_graph')
     def update_graph(self, curve, data, pl, resize):

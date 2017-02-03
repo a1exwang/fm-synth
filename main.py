@@ -1,5 +1,6 @@
 import numpy as np
 import os
+from pprint import pprint
 
 from gui.monitors import FMSynthGUI
 from operators.const import ConstOperator
@@ -22,8 +23,8 @@ midi = MIDIInput(gui=gui, sr=sr, buffer_size=buffer_size, bpm=45)
 
 mux = MuxOperator(input_ops=[midi], output_count=2)
 
-c1_f = ConstOperator(constant=0.5, sr=sr, buffer_size=buffer_size)
-c2_a = ConstOperator(constant=1, sr=sr, buffer_size=buffer_size)
+c1_f = ConstOperator(constant=0.5, sr=sr, buffer_size=buffer_size, name='c1_f')
+c2_a = ConstOperator(constant=1, sr=sr, buffer_size=buffer_size, name='c2_a')
 sine = Oscillator(input_ops=[c1_f, c2_a], in_conn=((0, 0), (1, 0)), osc_type='sine')
 
 mul = MulOperator(input_ops=[c2_a, mux])
@@ -47,7 +48,7 @@ filtered = FIRFilter(input_ops=[raw_osc],
 osc = Oscilloscope(input_ops=[filtered], gui=gui, name='After-filter Oscilloscope')
 out = DeviceOutput(input_op=osc, volume=1)
 
-gui.post_init()
+gui.post_init(out)
 
 # out.play()
 out.play_non_blocking()

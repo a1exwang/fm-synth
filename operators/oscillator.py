@@ -1,6 +1,7 @@
 import numpy as np
 import scipy.signal
 import operators.base
+from channels.channel import Channel
 
 
 class Oscillator(operators.base.Operator):
@@ -16,22 +17,37 @@ class Oscillator(operators.base.Operator):
                          input_ops[0].buffer_size,
                          volume,
                          name)
-        self.osc_type = osc_type
         self.asdr = asdr
 
-        fns = {
+        self.fns = {
             'sine': lambda f, a, t: a * np.sin(2 * np.pi * f * t),
             'saw': lambda f, a, t: a * scipy.signal.sawtooth(2 * np.pi * f * t, 0),
-            'saw1': lambda f, a, t: a * scipy.signal.sawtooth(2 * np.pi * f * t, 1),
+            'saw_r': lambda f, a, t: a * scipy.signal.sawtooth(2 * np.pi * f * t, 1),
             'triangular': lambda f, a, t: a * scipy.signal.sawtooth(2 * np.pi * f * t, 0.5),
             'square': lambda f, a, t: a * scipy.signal.square(2 * np.pi * f * t),
         }
-        if osc_type in fns:
-            self.fn = fns[osc_type]
+        self.osc_type = osc_type
+        self.osc_id = list(self.fns.keys()).index(osc_type)
+        if osc_type in self.fns:
+            self.fn = self.fns[osc_type]
         elif callable(osc_type):
             self.fn = osc_type
         else:
             raise RuntimeError("Wrong parameter 'osc_type'")
+
+        Channel.get_instance().add_channel(name='Osc_' + self.name + '_wavelet',
+                                           slot=self.osc_changed,
+                                           get_val=lambda: self.osc_id,
+                                           get_max_values=lambda: len(self.fns))
+
+
+    def osc_changed(self, new_osc):
+        index = round(new_osc * len(self.fns))
+        if index >= len(self.fns):
+            index = len(self.fns) - 1
+        self.osc_id = index
+        self.osc_type = list(self.fns.keys())[index]
+        self.fn = self.fns[self.osc_type]
 
     def is_input(self):
         return False

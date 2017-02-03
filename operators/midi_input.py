@@ -1,4 +1,5 @@
 import numpy as np
+from copy import copy
 from operators.base import InputOperator
 import functools
 from channels.channel import Channel
@@ -24,6 +25,17 @@ class MIDIInput(InputOperator):
         {'note': 'G4', 'onoff': False, 'velocity': 1, 't': 8.1},
     ]
 
+    @staticmethod
+    def make_loop(note_seq, period, times):
+        result = []
+        for i in range(times):
+            for n in note_seq:
+                val = copy(n)
+                val['t'] = val['t'] + period * i
+                result.append(val)
+
+        return result
+
     input_count = 0
     output_count = 2
 
@@ -37,7 +49,7 @@ class MIDIInput(InputOperator):
         self.bpm = bpm
         self.bps = bpm / 60.0
         self.adsr = np.array(adsr)
-        self.note_seq = note_seq
+        self.note_seq = self.make_loop(note_seq, 8, 10)
         self.loop = loop
 
         self.sustain_level = 0.5

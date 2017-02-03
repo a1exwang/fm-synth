@@ -36,6 +36,21 @@ class Operator(QObject):
 
         return result
 
+    def dump(self, operators):
+        for op in self.input_ops:
+            op.dump(operators)
+        op = {
+            'ns': 'operators.device_output',
+            'type': self.__class__.__name__,
+            'name': self.name,
+            'input_ops': list(map(lambda x: x.name, self.input_ops)),
+            'in_conn': self.in_conn,
+            'volume': self.volume,
+            'sr': self.sr,
+            'buffer_size': self.buffer_size,
+        }
+        operators.append(op)
+
     def is_input(self):
         return False
 
