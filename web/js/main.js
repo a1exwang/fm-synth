@@ -40,6 +40,7 @@ $.get("http://localhost:8000/main.json", function (data) {
     });
 
     // maps the node data to the tree layout
+    console.log(nodes);
     nodes = treemap(nodes);
 
     // append the svg object to the body of the page

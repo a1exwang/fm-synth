@@ -30,14 +30,14 @@ sine = Oscillator(input_ops=[c1_f, c2_a], in_conn=((0, 0), (1, 0)), osc_type='si
 mul = MulOperator(input_ops=[c2_a, mux])
 
 osc100 = Oscilloscope(gui=gui, input_ops=[mul], connections=((0, 0),), name='MIDI Osc')
-saw = Oscillator(input_ops=[mux, osc100],
+osc1 = Oscillator(input_ops=[mux, osc100],
                  in_conn=((0, 0), (1, 0)),
                  volume=1,
-                 osc_type='saw',
-                 name='Saw')
+                 osc_type='square',
+                 name='Osc1')
 
 mux.swap_outputs((1, 0))
-raw_osc = Oscilloscope(input_ops=[saw], gui=gui, name='Before-filter Oscilloscope')
+raw_osc = Oscilloscope(input_ops=[osc1], gui=gui, name='Before-filter Oscilloscope')
 filtered = FIRFilter(input_ops=[raw_osc],
                      bands=[(440, 0.7), (440, 880, 1), (880, 1760, 0.9), (1760, 20000, 1)],
                      # window_func=functools.partial(np.kaiser, beta=100),
