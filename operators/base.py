@@ -67,6 +67,3 @@ class OutputOperator(Operator):
     def __init__(self, input_ops, name='OutputOperator'):
         super().__init__(input_ops, 0, input_ops[0][0].sr, input_ops[0][0].buffer_size, name)
 
-    def play(self):
-        pass
-

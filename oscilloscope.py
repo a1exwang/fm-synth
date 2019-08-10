@@ -3,7 +3,7 @@ import numpy as np
 
 
 class Oscilloscope(OutputOperator):
-    def __init__(self, input_ops, gui=None, name='Oscilloscope'):
+    def __init__(self, input_ops, y_range=None, gui=None, name='Oscilloscope'):
         assert(len(input_ops) == 1)
 
         super().__init__(input_ops, name=name)
@@ -11,7 +11,9 @@ class Oscilloscope(OutputOperator):
         self.gui = gui
 
         self.pl = self.gui.add_plot(title=self.name)
-        self.pl.setRange(yRange=[-1, 1])
+        self.y_range = y_range
+        if y_range:
+            self.pl.setRange(yRange=self.y_range)
         self.curve = self.pl.plot(pen='y')
         self.ptr = 0
 
