@@ -3,20 +3,7 @@ from operators.base import Operator
 import scipy.signal
 import pyqtgraph as pg
 import math
-
-
-class LogValueAxis(pg.AxisItem):
-    def __init__(self, *args, **kwargs):
-        pg.AxisItem.__init__(self, *args, **kwargs)
-
-    def tickStrings(self, values, scale, spacing):
-        strings = []
-        for v in values:
-            # vs is the original tick value
-            vs = v * scale
-            vstr = '%0.0f' % (math.exp(vs),)
-            strings.append(vstr)
-        return strings
+from gui.helpers import LogValueAxis
 
 
 class FIRFilter(Operator):
@@ -60,7 +47,7 @@ class FIRFilter(Operator):
             self.curve = self.pl.plot(pen='y')
             x = (np.arange(len(self.h)//2, dtype='float')+1) * self.sr / len(self.h)
             xx = np.log(x)
-            y = 10 * np.log10(np.abs(np.fft.fft(self.h))[:len(self.h)//2])
+            y = 10 * np.log10(np.abs(np.fft.fft(self.h))[:len(self.h)//2] / np.pi)
 
             self.curve.setData(xx, y)
             self.pl.setLabel('left', "H", units='dB')

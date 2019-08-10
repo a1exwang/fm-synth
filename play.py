@@ -1,4 +1,7 @@
 import pyaudio
+import math
+import scipy.io.wavfile
+import numpy as np
 
 
 class Player:
@@ -51,4 +54,12 @@ class Player:
 
         stream.close()
         pa.terminate()
+
+    def save(self, output_file, length):
+        buffer_count = int(math.ceil(length * self.sr / self.buffer_size))
+        result = np.array([], dtype='float')
+        for i in range(buffer_count):
+            self.input_op[0].step(i + 1)
+            result = np.array([*result, *self.input_op[0].output_buffers[self.input_op[1]]])
+        scipy.io.wavfile.write(output_file, self.sr, result)
 

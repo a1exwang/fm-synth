@@ -69,11 +69,11 @@ class Operator(QObject):
 
 
 class InputOperator(Operator):
-    def __init__(self, output_count, sr, buffer_size, name='InputOperator'):
+    def __init__(self, output_count, sr, buffer_size, name=None):
         super().__init__([], output_count, sr, buffer_size, name)
 
 
 class OutputOperator(Operator):
-    def __init__(self, input_ops, name='OutputOperator'):
+    def __init__(self, input_ops, name=None):
         super().__init__(input_ops, 0, input_ops[0][0].sr, input_ops[0][0].buffer_size, name)
 

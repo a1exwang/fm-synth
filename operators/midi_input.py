@@ -36,7 +36,7 @@ class MIDIInput(InputOperator):
 
         return result
 
-    def __init__(self, gui, sr=44100, buffer_size=2048, bpm=120,
+    def __init__(self, gui=None, sr=44100, buffer_size=2048, bpm=120,
                  note_seq=DEFAULT_NOTES, loop=True,
                  adsr=(1, 1, 1, 1),
                  volume=1.0,
@@ -53,7 +53,7 @@ class MIDIInput(InputOperator):
 
         self.sustain_level = 0.5
         self.peak_level = 0.9
-        self.sustain_rate = 0
+        self.sustain_rate = 0.8
         self.attack_base_duration = 0.05
         self.decay_base_duration = 0.05
         self.sustain_base_duration = 2
@@ -76,7 +76,7 @@ class MIDIInput(InputOperator):
             self.pl.enableAutoRange('xy', False)
 
             self.channel = Channel.get_instance()
-            self.channel.add_channel(name='InputVol', slot=self.volume_changed, get_val=lambda: self.volume)
+            self.channel.add_channel(name=self.name, slot=self.volume_changed, get_val=lambda: self.volume)
 
     @pyqtSlot(float, name='volume_changed')
     def volume_changed(self, vol):

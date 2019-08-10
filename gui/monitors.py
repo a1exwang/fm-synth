@@ -17,7 +17,7 @@ from channels.channel import Channel
 
 
 class FMSynthGUI(QObject):
-    update_graph_signal = pyqtSignal('PyQt_PyObject', 'PyQt_PyObject',
+    update_graph_signal = pyqtSignal('PyQt_PyObject', 'PyQt_PyObject', 'PyQt_PyObject',
                                      'PyQt_PyObject', 'PyQt_PyObject', name='graph_needs_updating')
 
     def __init__(self):
@@ -58,9 +58,9 @@ class FMSynthGUI(QObject):
         # self.web_view.page().settings().setAttribute(QWebEngineSettings)
         self.web_view.show()
 
-    @pyqtSlot('PyQt_PyObject', 'PyQt_PyObject', 'PyQt_PyObject', 'PyQt_PyObject', name='update_graph')
-    def update_graph(self, curve, data, pl, resize):
-        curve.setData(data)
+    @pyqtSlot('PyQt_PyObject', 'PyQt_PyObject', 'PyQt_PyObject', 'PyQt_PyObject', 'PyQt_PyObject', name='update_graph')
+    def update_graph(self, curve, args, kwargs, pl, resize):
+        curve.setData(*args, **kwargs)
         if resize:
             pl.enableAutoRange('x', False)
 

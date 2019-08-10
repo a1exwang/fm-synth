@@ -19,7 +19,7 @@ class ReduceOperator(Operator):
 
     def __init__(self, input_ops, operation, name=None):
         if name is None:
-            name = "ReduceOperator<%s>#%d" % (operation.value[0], Operator.alloc_id())
+            name = "%s#%d" % (operation.value[0], Operator.alloc_id())
         super().__init__(input_ops,
                          1,
                          input_ops[0][0].sr,
