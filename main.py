@@ -25,16 +25,16 @@ mux = MuxOperator(input_ops=[midi], output_count=2)
 
 c1_f = ConstOperator(constant=0.5, sr=sr, buffer_size=buffer_size, name='c1_f')
 c2_a = ConstOperator(constant=1, sr=sr, buffer_size=buffer_size, name='c2_a')
-sine = Oscillator(input_ops=[c1_f, c2_a], in_conn=((0, 0), (1, 0)), osc_type='sine')
+c3_phi = ConstOperator(constant=0, sr=sr, buffer_size=buffer_size, name='c3_phi')
+sine = Oscillator(input_ops=[c1_f, c2_a, c3_phi], osc_type='sine')
 
 mul = MulOperator(input_ops=[c2_a, mux])
 
 osc100 = Oscilloscope(gui=gui, input_ops=[mul], connections=((0, 0),), name='MIDI Osc')
-osc1 = Oscillator(input_ops=[mux, osc100],
-                 in_conn=((0, 0), (1, 0)),
-                 volume=1,
-                 osc_type='square',
-                 name='Osc1')
+osc1 = Oscillator(input_ops=[mux, osc100, c3_phi],
+                  volume=1,
+                  osc_type='square',
+                  name='Osc1')
 
 mux.swap_outputs((1, 0))
 raw_osc = Oscilloscope(input_ops=[osc1], gui=gui, name='Before-filter Oscilloscope')

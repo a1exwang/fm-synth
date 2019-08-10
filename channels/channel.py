@@ -1,6 +1,10 @@
 
 class Channel:
 
+    """
+    A Channel is a tunable parameter driven by any operator or user input.
+    """
+
     instance = None
 
     def __init__(self):
