@@ -23,21 +23,19 @@ class FIRFilter(Operator):
     input_count = 1
     output_count = 1
 
-    def __init__(self, input_ops, bands, window_func=np.hanning, filter_size=128,
-                 volume=1.0, gui=None, name='FIRFilter'):
+    def __init__(self, input_ops, bands, window_func=np.hanning, filter_size=128, gui=None, name='FIRFilter'):
         super().__init__(input_ops,
-                         ((0, 0),),
-                         input_ops[0].sr,
-                         input_ops[0].buffer_size,
-                         volume,
+                         len(input_ops),
+                         input_ops[0][0].sr,
+                         input_ops[0][0].buffer_size,
                          name)
         self.name = name
         self.gui = gui
         self.filter_size = filter_size
         self.df = float(self.sr) / self.filter_size
         assert(len(input_ops) > 0)
-        self.buffer_size = input_ops[0].buffer_size
-        self.sr = input_ops[0].sr
+        self.buffer_size = input_ops[0][0].buffer_size
+        self.sr = input_ops[0][0].sr
         self.window_func = window_func
         self.window = window_func(filter_size//2)
         self.tw = lambda k: 3.32 * self.sr / k
@@ -116,10 +114,9 @@ class FIRFilter(Operator):
     def get_tw(self):
         return self.tw(self.filter_size)
 
-    def next_buffer(self, caller, n):
+    def next_buffer(self, input_buffers, n):
         result = np.zeros([self.buffer_size], dtype='float32')
-        outs = super().next_buffer(self, n)
-        xs = outs[0]
+        xs = input_buffers[0]
         for i in range(self.buffer_size // self.filter_size):
             x_batch = xs[i*self.filter_size:(i+1)*self.filter_size]
             xx = np.append(self.prev_x, x_batch)

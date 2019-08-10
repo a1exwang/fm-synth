@@ -5,8 +5,8 @@ from channels.channel import Channel
 
 class ConstOperator(InputOperator):
 
-    def __init__(self, constant, sr=44100, buffer_size=2048, volume=1.0, name='ConstOperator'):
-        super().__init__(sr, buffer_size, volume, name)
+    def __init__(self, constant, sr=44100, buffer_size=2048, name='ConstOperator'):
+        super().__init__(1, sr, buffer_size, name)
         self.constant = constant
         Channel.get_instance().add_channel(name='Const_' + self.name,
                                            slot=self.set_val,
@@ -16,5 +16,5 @@ class ConstOperator(InputOperator):
     def set_val(self, val):
         self.constant = val
 
-    def next_buffer(self, caller, n):
+    def next_buffer(self, input_buffers, n):
         return [np.ones([self.buffer_size], dtype='float32') * self.constant]

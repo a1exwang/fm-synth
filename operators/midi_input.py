@@ -1,8 +1,8 @@
-import numpy as np
+from PyQt5.QtCore import pyqtSlot
+from channels.channel import Channel
 from copy import copy
 from operators.base import InputOperator
-import functools
-from channels.channel import Channel
+import numpy as np
 
 
 class MIDIInput(InputOperator):
@@ -36,21 +36,20 @@ class MIDIInput(InputOperator):
 
         return result
 
-    input_count = 0
-    output_count = 2
-
     def __init__(self, gui, sr=44100, buffer_size=2048, bpm=120,
                  note_seq=DEFAULT_NOTES, loop=True,
                  adsr=(1, 1, 1, 1),
                  volume=1.0,
                  name='MIDIInput'):
-        super().__init__(sr, buffer_size, volume, name)
+        super().__init__(2, sr, buffer_size, name)
+        self.output_count = 2
         self.gui = gui
         self.bpm = bpm
         self.bps = bpm / 60.0
         self.adsr = np.array(adsr)
         self.note_seq = self.make_loop(note_seq, 8, 10)
         self.loop = loop
+        self.volume = volume
 
         self.sustain_level = 0.5
         self.peak_level = 0.9
@@ -79,6 +78,14 @@ class MIDIInput(InputOperator):
             self.channel = Channel.get_instance()
             self.channel.add_channel(name='InputVol', slot=self.volume_changed, get_val=lambda: self.volume)
 
+    @pyqtSlot(float, name='volume_changed')
+    def volume_changed(self, vol):
+        if vol <= 0:
+            vol = 0
+        if vol >= 1:
+            vol = 1
+        self.volume = vol
+
     @staticmethod
     def note_name_to_midi_value(name):
         notes = [["C"], ["C#", "Db"], ["D"], ["D#", "Eb"], ["E"],
@@ -101,7 +108,7 @@ class MIDIInput(InputOperator):
     def midi_value_to_freq(midi_val):
         return 440 * 2.0**((midi_val - 69) / 12.0)
 
-    def next_buffer(self, caller, current_count):
+    def next_buffer(self, input_buffers, current_count):
         arr_freq = np.zeros([self.buffer_size])
         arr_amp = np.zeros([self.buffer_size])
 

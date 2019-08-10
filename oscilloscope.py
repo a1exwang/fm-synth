@@ -1,13 +1,12 @@
-from operators.base import Operator
+from operators.base import OutputOperator
 import numpy as np
 
 
-class Oscilloscope(Operator):
-    input_count = 1
-    output_count = 1
+class Oscilloscope(OutputOperator):
+    def __init__(self, input_ops, gui=None, name='Oscilloscope'):
+        assert(len(input_ops) == 1)
 
-    def __init__(self, input_ops, connections=((0, 0),), gui=None, name='Oscilloscope'):
-        super().__init__(input_ops, connections, input_ops[0].sr, input_ops[0].buffer_size, 1.0, name)
+        super().__init__(input_ops, name=name)
         self.name = name
         self.gui = gui
 
@@ -16,12 +15,11 @@ class Oscilloscope(Operator):
         self.curve = self.pl.plot(pen='y')
         self.ptr = 0
 
-    def next_buffer(self, caller, n):
-        result = super().next_buffer(self, n)
-        i_op, i_channel = self.in_conn[0]
+    def next_buffer(self, input_buffers, n):
+        input_buffer = input_buffers[0]
         self.gui.update_graph_signal.emit(self.curve,
-                                          np.copy(result[i_op][i_channel]),
+                                          np.copy(input_buffer),
                                           self.pl,
                                           self.ptr == 0)
         self.ptr += 1
-        return [result[i_op][i_channel]]
+        return []
