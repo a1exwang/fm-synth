@@ -2,12 +2,17 @@ from PyQt5.QtCore import QObject
 
 
 class Operator(QObject):
+    name_counter = 0
+
     def __init__(self, input_ops, output_count, sr, buffer_size, name):
         super().__init__()
         self.sr = sr
         self.buffer_size = buffer_size
         self.out_conn = []
-        self.name = name
+        if name is None:
+            self.name = '%s#%d' % (type(self).__name__, Operator.alloc_id())
+        else:
+            self.name = name
         self.output_count = output_count
         self.current_offset = 0
         self.output_buffers = []
@@ -16,6 +21,11 @@ class Operator(QObject):
             assert channel < input_op.output_count, \
                 "Cannot connect the '%s'(%s).output[%d] to '%s'(%s). It has only %d outputs. Index %d is out of bounds" % \
                 (type(input_op), input_op.name, channel, type(self), self.name, input_op.output_count, channel,)
+
+    @staticmethod
+    def alloc_id():
+        Operator.name_counter += 1
+        return Operator.name_counter
 
     def next_buffer(self, input_buffers, n):
         return []

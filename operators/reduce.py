@@ -19,17 +19,17 @@ class ReduceOperator(Operator):
 
     def __init__(self, input_ops, operation, name=None):
         if name is None:
-            name = "ReduceOperator<%s>" % (operation[0],)
+            name = "ReduceOperator<%s>#%d" % (operation.value[0], Operator.alloc_id())
         super().__init__(input_ops,
                          1,
-                         input_ops[0].sr,
-                         input_ops[0].buffer_size,
+                         input_ops[0][0].sr,
+                         input_ops[0][0].buffer_size,
                          name)
         self.operation = operation
 
     def next_buffer(self, input_buffers, n):
-        result = np.ones([self.buffer_size]) * self.operation[1]
+        result = np.ones([self.buffer_size]) * self.operation.value[1]
         for input_buffer in input_buffers:
-            result = self.operation[2](result, input_buffer)
+            result = self.operation.value[2](result, input_buffer)
         return [result]
 

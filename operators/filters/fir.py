@@ -23,7 +23,7 @@ class FIRFilter(Operator):
     input_count = 1
     output_count = 1
 
-    def __init__(self, input_ops, bands, window_func=np.hanning, filter_size=128, gui=None, name='FIRFilter'):
+    def __init__(self, input_ops, bands, window_func=np.hanning, filter_size=128, gui=None, name=None):
         super().__init__(input_ops,
                          len(input_ops),
                          input_ops[0][0].sr,

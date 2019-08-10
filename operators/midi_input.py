@@ -40,7 +40,7 @@ class MIDIInput(InputOperator):
                  note_seq=DEFAULT_NOTES, loop=True,
                  adsr=(1, 1, 1, 1),
                  volume=1.0,
-                 name='MIDIInput'):
+                 name=None):
         super().__init__(2, sr, buffer_size, name)
         self.output_count = 2
         self.gui = gui

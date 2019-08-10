@@ -14,7 +14,7 @@ class Oscillator(operators.base.Operator):
     phi: Phase at time 0
     """
 
-    def __init__(self, input_ops, osc_type='sine', name='Osc'):
+    def __init__(self, input_ops, osc_type='sine', name=None):
         super().__init__(input_ops,
                          1,
                          input_ops[0][0].sr,

@@ -3,9 +3,10 @@ import numpy as np
 
 
 class Oscilloscope(OutputOperator):
-    def __init__(self, input_ops, y_range=None, gui=None, name='Oscilloscope'):
-        assert(len(input_ops) == 1)
+    name_counter = 0
 
+    def __init__(self, input_ops, y_range=None, gui=None, name=None):
+        assert(len(input_ops) == 1)
         super().__init__(input_ops, name=name)
         self.name = name
         self.gui = gui
