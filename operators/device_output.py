@@ -5,8 +5,8 @@ import numpy as np
 
 
 class DeviceOutput(OutputOperator):
-    def __init__(self, input_op, volume=1.0, name=None):
-        super().__init__((input_op,), name)
+    def __init__(self, input_ops, volume=1.0, name=None):
+        super().__init__(input_ops, name)
         self.total_count = 0
         self.stream = None
         self.volume = volume
@@ -23,10 +23,15 @@ class DeviceOutput(OutputOperator):
         self.volume = vol
 
     def next_buffer(self, input_buffers, n):
-        mixed = input_buffers[0]
-        # [-1, 1) -> [0, 2**16)
-        arr = ((np.array(mixed, dtype='float32') + 1) / 2) * 2**16
-
-        arr = np.transpose(np.array([arr, arr]))
+        if len(input_buffers) == 1:
+            # mono
+            # [-1, 1) -> [0, 2**16)
+            arr = ((np.array(input_buffers[0], dtype='float32') + 1) / 2) * 2**16
+            arr = np.transpose(np.array([arr, arr]))
+        else:
+            # stereo
+            arr_l = ((np.array(input_buffers[0], dtype='float32') + 1) / 2) * 2 ** 16
+            arr_r = ((np.array(input_buffers[1], dtype='float32') + 1) / 2) * 2 ** 16
+            arr = np.transpose(np.array([arr_l, arr_r]))
         result = np.array(arr, dtype='int16')
         return [result * self.volume]

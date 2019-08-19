@@ -29,7 +29,7 @@ class Oscillator(operators.base.Operator):
             'square': lambda f, a, phi, t: a * scipy.signal.square(2 * np.pi * f * t + phi),
         }
         self.osc_type = osc_type
-        self.osc_id = list(self.fns.keys()).index(osc_type)
+        self.osc_id = hash(osc_type) if callable(osc_type) else list(self.fns.keys()).index(osc_type)
         if osc_type in self.fns:
             self.fn = self.fns[osc_type]
         elif callable(osc_type):

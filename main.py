@@ -205,7 +205,7 @@ scope_freq_after = Oscilloscope(input_ops=[(dft, 0)],
                                 y_db=True,
                                 y_range=(-50, 0), gui=gui,
                                 name='After-filter Freq')
-out = DeviceOutput(input_op=(filtered, 0), volume=1)
+out = DeviceOutput(input_ops=[(filtered, 0)], volume=1)
 
 gui.post_init(out)
 
