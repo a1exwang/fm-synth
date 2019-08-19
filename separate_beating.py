@@ -57,18 +57,20 @@ left = Oscillator(
         (zero, 0)],
     osc_type='sine',
     name='Left')
+scope_left = Oscilloscope(input_ops=[(left, 0)], y_range=range_1, gui=gui, name='Left scope')
 right = Oscillator(
     input_ops=[
-        (ConstOperator(constant=441, sr=sr, buffer_size=buffer_size, name='f-right', range=(0, 500), step=0.1), 0),
+        (ConstOperator(constant=444, sr=sr, buffer_size=buffer_size, name='f-right', range=(0, 500), step=0.1), 0),
         (const(0.25), 0),
         (zero, 0)],
     osc_type='sine',
     name='Right')
+scope_right = Oscilloscope(input_ops=[(right, 0)], y_range=range_1, gui=gui, name='Right scope')
 out = DeviceOutput(input_ops=[(left, 0), (right, 0)], volume=1)
 
 gui.post_init(out)
 
-player = play.Player(sr, buffer_size, (out, 0), [out])
+player = play.Player(sr, buffer_size, (out, 0), [out, scope_left, scope_right])
 player.play_non_blocking()
 gui.start()
 

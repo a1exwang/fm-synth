@@ -2,7 +2,6 @@ from PyQt5.QtWidgets import QWidget, QVBoxLayout, QSlider, QLabel, QComboBox
 from PyQt5.QtCore import Qt
 from PyQt5.QtCore import pyqtSlot, pyqtSignal
 from channels.channel import Channel
-import numpy as np
 
 
 class DoubleSlider(QSlider):
@@ -24,7 +23,6 @@ class DoubleSlider(QSlider):
         self.doubleValueChanged.emit(value)
 
     def setRange(self, range_min, range_max):
-        print('double slider %s %s' % (range_min, range_max))
         assert range_min < range_max
         self._min_value = range_min
         self._max_value = range_max
@@ -42,7 +40,6 @@ class DoubleSlider(QSlider):
 
     def value(self):
         int_value = super(DoubleSlider, self).value()
-        print('int value %s' % int_value)
         return (float(int_value) + self._min_value) * self._step
 
     def setValue(self, value):
@@ -58,7 +55,7 @@ class ConnectSlider(QWidget):
 
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
-        self.slider = DoubleSlider() #QSlider()
+        self.slider = DoubleSlider()
         self.channel_selector = QComboBox()
         self.label_value = QLabel(text='0')
         self.label_name = QLabel(text=self.name)
@@ -87,12 +84,15 @@ class ConnectSlider(QWidget):
     def channel_selected(self, index):
         if index > 0:
             name = self.channel.get_channels()[index - 1]
+
+            # NOTE(aocheng):
+            #  The slot must set before the range and step is set, or the old channel will have a wrong value.
             slot = self.channel.get_channel(name)
+            self.connected_channel = slot
+
             get_val = self.channel.get_channel_val(name)
 
             range_min, range_max, step = self.channel.get_channel_range_and_step(name)()
-            print(range_min, range_max, step)
             self.slider.setRange(range_min, range_max)
             self.slider.setSingleStep(step)
             self.slider.setValue(get_val())
-            self.connected_channel = slot

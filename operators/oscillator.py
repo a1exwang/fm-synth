@@ -41,11 +41,12 @@ class Oscillator(operators.base.Operator):
             name='Osc<%s,%s>::wavelet' % (self.osc_type if type(self.osc_type) is str else 'custom', self.name),
             slot=self.osc_changed,
             get_val=lambda: self.osc_id,
-            get_max_values=lambda: len(self.fns),
+            get_step=lambda: 1,
+            get_range=lambda: (0, len(self.fns)),
         )
 
     def osc_changed(self, new_osc):
-        index = round(new_osc * len(self.fns))
+        index = round(new_osc)
         if index >= len(self.fns):
             index = len(self.fns) - 1
         self.osc_id = index

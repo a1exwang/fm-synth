@@ -34,9 +34,6 @@ class Channel:
     def get_channel_val(self, name):
         return self.channels[name]['get_val']
 
-    def get_channel_max(self, name):
-        return self.channels[name]['get_max']
-
     def get_channels(self):
         return list(self.channels.keys())
 
