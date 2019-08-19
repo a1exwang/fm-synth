@@ -1,8 +1,52 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QSlider, QLabel, QComboBox
 from PyQt5.QtCore import Qt
-from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import pyqtSlot, pyqtSignal
 from channels.channel import Channel
-import pdb
+import numpy as np
+
+
+class DoubleSlider(QSlider):
+    # create our our signal that we can connect to if necessary
+    doubleValueChanged = pyqtSignal(float)
+
+    def __init__(self, *args, **kwargs):
+        super(DoubleSlider, self).__init__(*args, **kwargs)
+        self._min_value = 0
+        self._max_value = 1
+        self._step = 0.01
+        self.valueChanged.connect(self.emitDoubleValueChanged)
+
+    def _step_count(self):
+        return int((self._max_value - self._min_value) / self._step)
+
+    def emitDoubleValueChanged(self):
+        value = (float(super(DoubleSlider, self).value()) + self._min_value) * self._step
+        self.doubleValueChanged.emit(value)
+
+    def setRange(self, range_min, range_max):
+        print('double slider %s %s' % (range_min, range_max))
+        assert range_min < range_max
+        self._min_value = range_min
+        self._max_value = range_max
+        super(DoubleSlider, self).setRange(0, self._step_count())
+
+    def singleStep(self):
+        return self._step
+
+    def setSingleStep(self, value):
+        self._step = value
+        assert value > 0
+        assert self._step_count() > 0
+        super(DoubleSlider, self).setRange(0, self._step_count())
+        return super(DoubleSlider, self).setSingleStep(1)
+
+    def value(self):
+        int_value = super(DoubleSlider, self).value()
+        print('int value %s' % int_value)
+        return (float(int_value) + self._min_value) * self._step
+
+    def setValue(self, value):
+        super(DoubleSlider, self).setValue(int((value - self._min_value) / self._step))
 
 
 class ConnectSlider(QWidget):
@@ -14,7 +58,7 @@ class ConnectSlider(QWidget):
 
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
-        self.slider = QSlider()
+        self.slider = DoubleSlider() #QSlider()
         self.channel_selector = QComboBox()
         self.label_value = QLabel(text='0')
         self.label_name = QLabel(text=self.name)
@@ -25,7 +69,7 @@ class ConnectSlider(QWidget):
         self.channel_selector.setInsertPolicy(QComboBox.NoInsert)
         self.connected_channel = None
 
-        self.slider.valueChanged.connect(self.slider_changed)
+        self.slider.doubleValueChanged.connect(self.slider_changed)
 
         self.layout.addWidget(self.label_name)
         self.layout.addWidget(self.channel_selector)
@@ -33,11 +77,11 @@ class ConnectSlider(QWidget):
         self.layout.addWidget(self.label_value)
         self.layout.setAlignment(Qt.AlignRight)
 
-    @pyqtSlot(int, name='slider_changed')
+    @pyqtSlot(float, name='slider_changed')
     def slider_changed(self, val):
         self.label_value.setText(str(val))
         if self.connected_channel:
-            self.connected_channel(val / self.slider.maximum())
+            self.connected_channel(val)
 
     @pyqtSlot(int, name='channel_selected')
     def channel_selected(self, index):
@@ -45,7 +89,10 @@ class ConnectSlider(QWidget):
             name = self.channel.get_channels()[index - 1]
             slot = self.channel.get_channel(name)
             get_val = self.channel.get_channel_val(name)
-            get_max_val = self.channel.get_channel_max(name)
-            self.slider.setMaximum(get_max_val())
+
+            range_min, range_max, step = self.channel.get_channel_range_and_step(name)()
+            print(range_min, range_max, step)
+            self.slider.setRange(range_min, range_max)
+            self.slider.setSingleStep(step)
+            self.slider.setValue(get_val())
             self.connected_channel = slot
-            self.slider.setValue(int(get_val() * self.slider.maximum()))

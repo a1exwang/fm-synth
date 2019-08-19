@@ -5,15 +5,17 @@ from channels.channel import Channel
 
 class ConstOperator(InputOperator):
 
-    def __init__(self, constant, sr=44100, buffer_size=2048, name=None):
+    def __init__(self, constant, sr=44100, buffer_size=2048, name=None, range=(0, 100), step=0.01):
         if name is None:
             name = 'Const<%s>#%d' % (constant, self.alloc_id())
         super().__init__(1, sr, buffer_size, name)
+        self.range = range
         self.constant = constant
         Channel.get_instance().add_channel(name=name,
                                            slot=self.set_val,
                                            get_val=lambda: self.constant,
-                                           get_max_values=lambda: 100)
+                                           get_range=lambda: range,
+                                           get_step=lambda: step)
 
     def set_val(self, val):
         self.constant = val
