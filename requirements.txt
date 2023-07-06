@@ -5,5 +5,5 @@ matplotlib==3.0.3
 numpy==1.16.3
 pyaudio==0.2.11
 pyqtgraph==0.10.0
-scipy==1.2.1
+scipy==1.10.0
 sounddevice==0.3.13
